@@ -12,7 +12,7 @@ import (
    NOTE: command_arg_1 and command_arg_2 represent optional parameteras that you define
    in the Slack API UI
 */
-const helpMessage = "type in '@BOT_NAME <command_arg_1> <command_arg_2>'"
+const helpMessage = "type in '@DadJokes <command_arg_1> <command_arg_2>'"
 
 /*
    CreateSlackClient sets up the slack RTM (real-timemessaging) client library,
@@ -34,7 +34,7 @@ func CreateSlackClient(apiKey string) *slack.RTM {
 */
 func RespondToEvents(slackClient *slack.RTM) {
 	for msg := range slackClient.IncomingEvents {
-		fmt.Println("Event Received: ", msg.Type)
+		fmt.Println("Event Received: ", msg)
 		switch ev := msg.Data.(type) {
 		case *slack.MessageEvent:
 			botTagString := fmt.Sprintf("<@%s> ", slackClient.GetInfo().User.ID)
@@ -72,8 +72,12 @@ func sendHelp(slackClient *slack.RTM, message, slackChannel string) {
 // sendResponse is NOT unimplemented --- write code in the function body to complete!
 
 func sendResponse(slackClient *slack.RTM, message, slackChannel string) {
-	command := strings.ToLower(message)
-	println("[RECEIVED] sendResponse:", command)
+	// command := strings.ToLower(message)
+	// println("[RECEIVED] sendResponse:", command)
+	j, err := DadJokes()
+	if err != nil {
+		fmt.Println("Error when getting joke: ", err)
+	}
 
 	// START SLACKBOT CUSTOM CODE
 	// ===============================================================
@@ -83,4 +87,6 @@ func sendResponse(slackClient *slack.RTM, message, slackChannel string) {
 	//      2. STRETCH: Write a goroutine that calls an external API based on the data received in this function.
 	// ===============================================================
 	// END SLACKBOT CUSTOM CODE
+
+	slackClient.SendMessage(slackClient.NewOutgoingMessage(j, slackChannel))
 }
